@@ -3,7 +3,7 @@
  * This program writes size number of bytes
  * at specified offset on specified file
  *
- * Author: Shylesh kumar <shylesh.mohan@redhat.com>
+ * Author: Shylesh kumar <shylesh.mohan@gmail.com>
  *
  */
 
