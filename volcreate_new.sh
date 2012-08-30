@@ -16,7 +16,8 @@ brickdir=$5
 cmd_prefix="gluster volume"
 brick_list=" "
 
-echo "$volname,$nbricks,$scount,$rcount,$brickdir"
+echo  -e "VOLNAME:\t$volname\nBRICK_CNT:\t$nbricks\nSTRPIPE_CNT:\t$scount\n\
+REPLICA_CNT:\t$rcount\nBRICK_LIST:\t$brickdir"
 
 if [ $nbricks -eq 0 ]; then
 	echo "brick count can't be zero"
@@ -30,7 +31,8 @@ if [ ! -d $brickdir ]; then
 fi
 
 if [ ! -f "servers" ]; then
-        echo "server file doesnot exists"
+        echo "server file does not exists"
+	exit 1
 fi
 
 #read server list#
