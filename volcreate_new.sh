@@ -17,7 +17,7 @@ cmd_prefix="gluster volume"
 brick_list=" "
 
 echo  -e "VOLNAME:\t$volname\nBRICK_CNT:\t$nbricks\nSTRPIPE_CNT:\t$scount\n\
-REPLICA_CNT:\t$rcount\nBRICK_LIST:\t$brickdir"
+REPLICA_CNT:\t$rcount\nBRICK_DIR:\t$brickdir"
 
 if [ $nbricks -eq 0 ]; then
 	echo "brick count can't be zero"
@@ -54,7 +54,7 @@ do
 		
 done
 
-echo $brick_list
+echo -e "BRICK_LIST:$brick_list\n"
 
 if [ "$scount" -eq "0" ] && [ "$rcount" -eq "0" ]; then
 		#this volume is distribute
