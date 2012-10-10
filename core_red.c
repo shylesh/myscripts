@@ -7,8 +7,11 @@
        #include <string.h>
        #include <errno.h>
 
+
        #define BUF_SIZE 1024
 
+
+	/* gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${exe} ${corefile} */
        int
        main(int argc, char *argv[])
        {
