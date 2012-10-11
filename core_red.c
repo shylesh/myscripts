@@ -9,6 +9,9 @@
 
 
        #define BUF_SIZE 1024
+       #define CORE_PATH "/tmp/core.dump"
+       #define CORE_INFO "/tmp/core.info"
+       #define CORE_BT "/tmp/core.bt"
 
 
 	/* gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${exe} ${corefile} */
@@ -20,19 +23,28 @@
            ssize_t nread, nwrite;
            char buf[BUF_SIZE];
            FILE *fp;
+	   FILE *fp1;
+	   int fd2;
            char cwd[PATH_MAX];
 	   char *args_to_exec[10];
 	   int ret;
 	   char cmd[1024];
+	   char gdb_cmd[1024] = "gdb --batch --quiet -ex \"thread apply all bt full\" -ex \"quit\" ";
+	   char bin[1024]; 
+	   char bt[1024] =  CORE_PATH;
+	   char *buf1[BUF_SIZE];
+	   int count = 0;
+
+	   bin = argv[1];
 
 
            /* Write output to file "core.info"*/
 
-           fp = fopen("/tmp/core.info", "w+");
+           fp = fopen(CORE_INFO, "w+");
            if (fp == NULL)
                exit(EXIT_FAILURE);
 		
-	   fd = open ("/tmp/core.dump", O_CREAT|O_RDWR, S_IRWXU);
+	   fd = open (CORE_PATH, O_CREAT|O_RDWR, S_IRWXU);
 	   if (fd == -1) 
 		exit(EXIT_FAILURE);
 
@@ -53,16 +65,36 @@
 	   	fprintf (fp, "error: %s", strerror(errno));
            fprintf(fp, "Total bytes in core dump: %d\n", tot);
 	   
+    	   /* Extract bt from the core and write it to CORE_BT file */
+	   
+	   fd2 = open (CORE_BT, "w+");
+	   if (fd2 == -1)
+		exit(EXIT_FAILURE);
+	   strcat(gdb_cmd, strcat(bin, bt));
+	   fp1 = popen (gbd_cmd, "r");
+	   if (fp1 == NULL) 
+	       exit(EXIT_FAILURE);
+		
+	   while (fgets(buf1, sizeof(buf1), fp1) != NULL) {
+		count = write(fd2, buf1, sizeof(buf1));
+		if (count == -1) 
+			exit(EXIT_FAILURE);
+	   }
+			
+	
+	    
+	   
 	   fflush(fp);
+	   fsync(fd2);
 	   sync();
 	
 	   args_to_exec[0] = "-s";
 	   args_to_exec[1] = "Core-Alert";
 	   args_to_exec[2] = "-a";
-	   args_to_exec[3] = "/tmp/core.dump";
+	   args_to_exec[3] = CORE_BT;
 	   args_to_exec[4] = "shmohan@redhat.com";	
 	   args_to_exec[5] = "<";
-	   args_to_exec[6] = "/tmp/core.info";
+	   args_to_exec[6] = CORE_INFO;
 	   sprintf (cmd, "/bin/mailx %s %s %s %s %s %s %s", args_to_exec[0],
 						       args_to_exec[1],
 						       args_to_exec[2],
