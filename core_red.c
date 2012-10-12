@@ -11,14 +11,14 @@
        #define BUF_SIZE 1024
        #define CORE_PATH "/tmp/core.dump"
        #define CORE_INFO "/tmp/core.info"
-       #define CORE_BT "/tmp/core.bt"
+       #define CORE_BT "/tmp/bt"
 
 
 	/* gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${exe} ${corefile} */
        int
        main(int argc, char *argv[])
        {
-           int tot, j;
+           int tot, j = 0;
 	   int fd;
            ssize_t nread, nwrite;
            char buf[BUF_SIZE];
@@ -32,15 +32,22 @@
 	   char gdb_cmd[1024] = "gdb --batch --quiet -ex \"thread apply all bt full\" -ex \"quit\" ";
 	   char bin[1024]; 
 	   char bt[1024] =  CORE_PATH;
-	   char *buf1[BUF_SIZE];
+	   char buf1[BUF_SIZE];
+	   char *cmd1, *cmd2;
 	   int count = 0;
 
-	   bin = argv[1];
 
+	   cmd1 = argv[1];	
+       	   while (*(cmd1++) != '=');
+	   cmd2 = cmd1;	
+	   strcpy(bin,cmd2 );
+	   strcat (bin, " ");
 
            /* Write output to file "core.info"*/
 
            fp = fopen(CORE_INFO, "w+");
+
+	   fprintf (fp, "executable name is %s", bin);
            if (fp == NULL)
                exit(EXIT_FAILURE);
 		
@@ -67,11 +74,14 @@
 	   
     	   /* Extract bt from the core and write it to CORE_BT file */
 	   
-	   fd2 = open (CORE_BT, "w+");
-	   if (fd2 == -1)
+	   fd2 = open(CORE_BT, O_CREAT|O_RDWR, S_IRWXU);
+	   if (fd2 == -1) {
+	   	fprintf (fp, "%s", "openning fp2 failed\n");
 		exit(EXIT_FAILURE);
+	   }
 	   strcat(gdb_cmd, strcat(bin, bt));
-	   fp1 = popen (gbd_cmd, "r");
+	   fprintf (fp, "final gdb_cmd= %s", gdb_cmd); 
+	   fp1 = popen (gdb_cmd, "r");
 	   if (fp1 == NULL) 
 	       exit(EXIT_FAILURE);
 		
@@ -110,7 +120,10 @@
          	exit(EXIT_FAILURE);
 
 	  fclose(fp);
+	  fclose(fp1);
+	  close(fd2);
 	  close(fd);
+	 
           exit(EXIT_SUCCESS);
        }
 
