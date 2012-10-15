@@ -35,6 +35,7 @@
 	   char buf1[BUF_SIZE];
 	   char *cmd1, *cmd2;
 	   int count = 0;
+	   char final[1024];
 
 
 	   cmd1 = argv[1];	
@@ -80,16 +81,26 @@
 		exit(EXIT_FAILURE);
 	   }
 	   strcat(gdb_cmd, strcat(bin, bt));
-	   fprintf (fp, "final gdb_cmd= %s", gdb_cmd); 
-	   fp1 = popen (gdb_cmd, "r");
-	   if (fp1 == NULL) 
-	       exit(EXIT_FAILURE);
+	   #ifdef DEBUG
+		   fprintf (fp, "final gdb_cmd= %s", gdb_cmd); 
+	   #endif
+	   
+	   sprintf (final, "%s > %s", gdb_cmd, CORE_BT);
+	   #ifdef DEBUG
+	   	fprintf (fp, "final is %s", final);
+	   #endif
+	   ret = system(final);
+	   if (ret)
+		fprintf (fp, "system failed\n");
+	  // fp1 = popen (gdb_cmd, "r");
+	   //if (fp1 == NULL) 
+	    //   exit(EXIT_FAILURE);
 		
-	   while (fgets(buf1, sizeof(buf1), fp1) != NULL) {
+	   /*while (fgets(buf1, sizeof(buf1), fp1) != NULL) {
 		count = write(fd2, buf1, sizeof(buf1));
 		if (count == -1) 
 			exit(EXIT_FAILURE);
-	   }
+	   } */
 			
 	
 	    
@@ -120,7 +131,7 @@
          	exit(EXIT_FAILURE);
 
 	  fclose(fp);
-	  fclose(fp1);
+	  //fclose(fp1);
 	  close(fd2);
 	  close(fd);
 	 
