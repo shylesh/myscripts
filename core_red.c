@@ -9,10 +9,6 @@
 
 
        #define BUF_SIZE 1024
-       #define CORE_PATH "/tmp/core.dump"
-       #define CORE_INFO "/tmp/core.info"
-       #define CORE_BT "/tmp/bt"
-       #define EMAIL_ID "shmohan@redhat.com"
 
 
 	/* gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${exe} ${corefile} */
@@ -32,11 +28,20 @@
 	   char cmd[1024];
 	   char gdb_cmd[1024] = "gdb --batch --quiet -ex \"thread apply all bt full\" -ex \"quit\" ";
 	   char bin[1024]; 
-	   char bt[1024] =  CORE_PATH;
 	   char buf1[BUF_SIZE];
 	   char *cmd1, *cmd2;
 	   int count = 0;
 	   char final[1024];
+	   char core_path[1024];
+	   char core_info[1024];
+  	   char core_bt[1024]; 
+	   char *email = "shmohan@redhat.com";
+	   char *pid = argv[4];
+
+	   sprintf (core_path, "/tmp/core.dump.%s", pid);
+	   sprintf (core_info, "/tmp/core.info.%s", pid);
+     	   sprintf (core_bt, "/tmp/bt.%s", pid);
+	   
 
 
 	   cmd1 = argv[1];	
@@ -47,13 +52,15 @@
 
            /* Write output to file "core.info"*/
 
-           fp = fopen(CORE_INFO, "w+");
+           fp = fopen(core_info, "w+");
 
-	   fprintf (fp, "executable name is %s", bin);
+	   #ifdef DEBUG
+	   	fprintf (fp, "executable name is %s", bin);
+	   #endif
            if (fp == NULL)
                exit(EXIT_FAILURE);
 		
-	   fd = open (CORE_PATH, O_CREAT|O_RDWR, S_IRWXU);
+	   fd = open (core_path, O_CREAT|O_RDWR, S_IRWXU);
 	   if (fd == -1) 
 		exit(EXIT_FAILURE);
 
@@ -76,17 +83,17 @@
 	   
     	   /* Extract bt from the core and write it to CORE_BT file */
 	   
-	   fd2 = open(CORE_BT, O_CREAT|O_RDWR, S_IRWXU);
+	   fd2 = open(core_bt, O_CREAT|O_RDWR, S_IRWXU);
 	   if (fd2 == -1) {
 	   	fprintf (fp, "%s", "openning fp2 failed\n");
 		exit(EXIT_FAILURE);
 	   }
-	   strcat(gdb_cmd, strcat(bin, bt));
+	   strcat(gdb_cmd, strcat(bin, core_path));
 	   #ifdef DEBUG
 		   fprintf (fp, "final gdb_cmd= %s", gdb_cmd); 
 	   #endif
 	   
-	   sprintf (final, "%s > %s", gdb_cmd, CORE_BT);
+	   sprintf (final, "%s > %s", gdb_cmd, core_bt);
 	   #ifdef DEBUG
 	   	fprintf (fp, "final is %s", final);
 	   #endif
@@ -113,10 +120,10 @@
 	   args_to_exec[0] = "-s";
 	   args_to_exec[1] = "Core-Alert";
 	   args_to_exec[2] = "-a";
-	   args_to_exec[3] = CORE_BT;
-	   args_to_exec[4] = EMAIL_ID;	
+	   args_to_exec[3] = core_bt;
+	   args_to_exec[4] = email;	
 	   args_to_exec[5] = "<";
-	   args_to_exec[6] = CORE_INFO;
+	   args_to_exec[6] = core_info;
 	   sprintf (cmd, "/bin/mailx %s %s %s %s %s %s %s", args_to_exec[0],
 						       args_to_exec[1],
 						       args_to_exec[2],
