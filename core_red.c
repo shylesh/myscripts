@@ -12,6 +12,7 @@
        #define CORE_PATH "/tmp/core.dump"
        #define CORE_INFO "/tmp/core.info"
        #define CORE_BT "/tmp/bt"
+       #define EMAIL_ID "shmohan@redhat.com"
 
 
 	/* gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${exe} ${corefile} */
@@ -113,7 +114,7 @@
 	   args_to_exec[1] = "Core-Alert";
 	   args_to_exec[2] = "-a";
 	   args_to_exec[3] = CORE_BT;
-	   args_to_exec[4] = "shmohan@redhat.com";	
+	   args_to_exec[4] = EMAIL_ID;	
 	   args_to_exec[5] = "<";
 	   args_to_exec[6] = CORE_INFO;
 	   sprintf (cmd, "/bin/mailx %s %s %s %s %s %s %s", args_to_exec[0],
