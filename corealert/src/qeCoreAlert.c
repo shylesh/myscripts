@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 	char core_path[1024];
 	char core_info[1024];
 	char core_bt[1024];
-	char *email = "storage-qa-internal@redhat.com";
+	char *email = "shmohan@redhat.com";
 	char *pid = argv[4];
 
 	sprintf (core_path, "/tmp/core.dump.%s", pid);
